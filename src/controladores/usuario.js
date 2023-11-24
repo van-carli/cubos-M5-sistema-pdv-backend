@@ -38,6 +38,35 @@ const login = async (req, res) => {
     }
 };
 
+const editarUsuario = async (req,res) => {
+
+    const { nome, email, senha } = req.body;
+  
+      if(!nome || nome==='' || !email || email==='' || !senha || senha===''){
+          return res.status(400).json({mensagem: 'Todos os campos são obrigatórios!'});
+      }
+  
+      try{
+  
+        const emailExiste = await knex('usuarios').select('*').where('email', email);
+        
+        if (emailExiste.rowCount > 0) {
+          return res.status(400).json({ mensagem: 'O e-mail informado já está sendo utilizado por outro usuário.' })
+        }
+  
+        const senhaCriptografada = await bcrypt.hash(senha, 10);
+        
+        const usr = await knex('usuarios').update({nome, email, senhaCriptografada}).where('id', req.usuario.id)
+        
+        delete usr.rows[0].senha;
+        return res.status(200).json(usr.rows[0]);
+  
+      }catch (error) {
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+      }
+  }
+
 module.exports = {
-    login
+    login,
+    editarUsuario
 }
