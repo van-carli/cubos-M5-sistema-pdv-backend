@@ -2,7 +2,7 @@ const knex = require('../conexao');
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
 
-const verificarCadastro = async (req, res, next) => {
+const filtroLogin = async (req, res, next) => {
     const { authorization } = req.headers
     const token = authorization.split(' ')[1];
 
@@ -33,4 +33,4 @@ const verificarCadastro = async (req, res, next) => {
     }
 }
 
-module.exports = verificarCadastro;
+module.exports = filtroLogin;
