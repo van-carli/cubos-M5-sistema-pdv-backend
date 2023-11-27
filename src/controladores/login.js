@@ -11,7 +11,7 @@ const login = async (req, res) => {
             .where('email', email).first();
 
         if (!usuario) {
-            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+            return res.status(404).json({ mensagem: 'Usuário e/ou senha inválido(s).' });
         }
 
         const senhaValida = await bcrypt.compare(senha, usuario.senha);
