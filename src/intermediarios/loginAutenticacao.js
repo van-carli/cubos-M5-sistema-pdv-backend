@@ -2,7 +2,7 @@ const knex = require('../conexao');
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
 
-const filtroLogin = async (req, res, next) => {
+const loginAutenticacao = async (req, res, next) => {
     const { authorization } = req.headers
     try {
         const token = authorization.split(' ')[1];
@@ -11,11 +11,12 @@ const filtroLogin = async (req, res, next) => {
         }
 
         const { id } = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const usuario = (await knex('usuarios').select('*').where('id', id));
+        let usuario = (await knex('usuarios').select('*').where('id', id));
 
-        if (!usuario[0]) {
+        if (!usuario.length) {
             throw "Erro na autenticação do usuário";
         }
+
         req.usuario = {
             id,
             nome: usuario[0].nome,
@@ -29,4 +30,4 @@ const filtroLogin = async (req, res, next) => {
     }
 }
 
-module.exports = filtroLogin;
+module.exports = loginAutenticacao;
