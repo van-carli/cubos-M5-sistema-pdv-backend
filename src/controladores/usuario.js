@@ -37,7 +37,7 @@ const editarUsuario = async (req, res) => {
 
   try {
 
-    const emailExiste = await knex('usuarios').select('*').where('email', email);
+    const emailExiste = await knex('usuarios').select('*').where('email', email).whereNot('id', req.usuario.id);
 
 
     if (emailExiste.length > 0) {
