@@ -39,18 +39,21 @@ const editarUsuario = async (req, res) => {
 
     const emailExiste = await knex('usuarios').select('*').where('email', email);
 
-    if (emailExiste.rowCount > 0) {
+
+    if (emailExiste.length > 0) {
       return res.status(400).json({ mensagem: 'O e-mail informado já está sendo utilizado por outro usuário.' })
     }
 
     const senhaCriptografada = await bcrypt.hash(senha, 10);
 
-    const usr = await knex('usuarios').update({ nome, email, senhaCriptografada }).where('id', req.usuario.id)
 
-    delete usr.rows[0].senha;
-    return res.status(200).json(usr.rows[0]);
+    const usr = await knex('usuarios').update({ nome, email, senha: senhaCriptografada }).where('id', req.usuario.id).returning("*");
+
+    delete usr[0].senha;
+    return res.status(200).json(usr);
 
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 }
