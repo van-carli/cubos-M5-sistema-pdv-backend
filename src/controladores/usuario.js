@@ -10,7 +10,12 @@ const cadastrarUsuario = async (req, res) => {
     const usuarioEncontrado = await knex("usuarios").where({ email }).first();
 
     if (usuarioEncontrado) {
-      return res.status(400).json({ mensagem: 'O e-mail informado já está sendo utilizado por outro usuário.' });
+      return res
+        .status(400)
+        .json({
+          mensagem:
+            "O e-mail informado já está sendo utilizado por outro usuário.",
+        });
     }
 
     const senhaCriptografada = await bcrypt.hash(senha, 10);
@@ -32,7 +37,6 @@ const cadastrarUsuario = async (req, res) => {
 };
 
 const editarUsuario = async (req, res) => {
-
   const { nome, email, senha } = req.body;
 
   try {
@@ -41,28 +45,34 @@ const editarUsuario = async (req, res) => {
 
 
     if (emailExiste.length > 0) {
-      return res.status(400).json({ mensagem: 'O e-mail informado já está sendo utilizado por outro usuário.' })
+      return res
+        .status(400)
+        .json({
+          mensagem:
+            "O e-mail informado já está sendo utilizado por outro usuário.",
+        });
     }
 
     const senhaCriptografada = await bcrypt.hash(senha, 10);
 
-
-    const usr = await knex('usuarios').update({ nome, email, senha: senhaCriptografada }).where('id', req.usuario.id).returning("*");
+    const usr = await knex("usuarios")
+      .update({ nome, email, senha: senhaCriptografada })
+      .where("id", req.usuario.id)
+      .returning("*");
 
     delete usr[0].senha;
     return res.status(200).json(usr);
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
-}
+};
 
 const detalharUsuario = async (req, res) => {
   try {
     const userId = req.usuario.id;
 
-    const usuario = await knex("usuarios").select('*').where('id', userId);
+    const usuario = await knex("usuarios").select("*").where("id", userId);
 
     if (usuario.length === 0) {
       return res.status(404).json({ mensagem: "Usuário não encontrado!" });
@@ -78,9 +88,7 @@ const detalharUsuario = async (req, res) => {
 };
 
 module.exports = {
-
   editarUsuario,
   cadastrarUsuario,
-  detalharUsuario
-}
-
+  detalharUsuario,
+};
