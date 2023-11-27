@@ -77,10 +77,28 @@ const detalharUsuario = async (req, res) => {
   }
 };
 
-module.exports = {
+const detalharUsuario = async (req, res) => {
+    try {
+        const userId = req.usuario.id;
+    
+        const usuario = await knex("usuarios").select('*').where('id', userId);
+    
+        if (usuario.length === 0) {
+          return res.status(404).json({ mensagem: "Usuário não encontrado!" });
+        }
+    
+        const { senha: _, ...usuarioSemSenha } = usuario[0];
+    
+        return res.status(200).json(usuarioSemSenha);
+      } catch (error) {
+        console.error("Erro!", error);
+        return res.status(500).json({ mensagem: "Erro!" });
+      }
+    };
 
-  editarUsuario,
-  cadastrarUsuario,
-  detalharUsuario
+module.exports = {
+    editarUsuario,
+    cadastrarUsuario,
+    detalharUsuario
 }
 
