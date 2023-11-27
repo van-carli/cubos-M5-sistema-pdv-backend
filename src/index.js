@@ -7,6 +7,4 @@ const app = express();
 app.use(express.json());
 app.use(rotas);
 
-app.listen(process.env.PORT, async () => {
-    console.log(`Servidor iniciado na porta ${process.env.PORT}`);
-});
+app.listen(process.env.PORT);
