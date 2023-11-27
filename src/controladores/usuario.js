@@ -1,6 +1,5 @@
 const knex = require("../conexao");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const cadastrarUsuario = async (req, res) => {
@@ -71,7 +70,6 @@ const editarUsuario = async (req, res) => {
 const detalharUsuario = async (req, res) => {
   try {
     const userId = req.usuario.id;
-
     const usuario = await knex("usuarios").select("*").where("id", userId);
 
     if (usuario.length === 0) {
@@ -82,8 +80,7 @@ const detalharUsuario = async (req, res) => {
 
     return res.status(200).json(usuarioSemSenha);
   } catch (error) {
-    console.error("Erro!", error);
-    return res.status(500).json({ mensagem: "Erro!" });
+    return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
 
