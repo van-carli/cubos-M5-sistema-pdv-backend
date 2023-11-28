@@ -1,10 +1,14 @@
 const express = require("express");
 const { listarCategorias } = require("../controladores/categoria");
 const validarRequisicao = require("../intermediarios/validarRequisicao");
-const usuarioSchema = require("../schemas/schemaUsuario");
+const usuarioSchema = require("../schemas/usuariosSchema");
 const loginSchema = require("../schemas/loginSchema");
 const login = require("../controladores/login");
-const { cadastrarUsuario, editarUsuario, detalharUsuario } = require("../controladores/usuario");
+const {
+  cadastrarUsuario,
+  editarUsuario,
+  detalharUsuario,
+} = require("../controladores/usuario");
 const loginAutenticacao = require("../intermediarios/loginAutenticacao");
 
 const rotas = express();
