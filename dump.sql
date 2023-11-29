@@ -30,7 +30,6 @@ CREATE TABLE produtos (
   quantidade_estoque INTEGER NOT NULL,
   valor INTEGER NOT NULL,
   categoria_id INTEGER NOT NULL,
-  produto_imagem TEXT
 );
 
 CREATE TABLE clientes (
@@ -46,10 +45,5 @@ CREATE TABLE clientes (
   estado CHAR(2)
 );
 
-CREATE TABLE pedidos (
-  id SERIAL PRIMARY KEY,
-  cliente_id INTEGER REFERENCES clientes(id),
-  observacao TEXT,
-  valor_total INTEGER NOT NULL);
- 
+
 
