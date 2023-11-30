@@ -10,6 +10,7 @@ const {
   detalharUsuario,
 } = require("../controladores/usuario");
 const loginAutenticacao = require("../intermediarios/loginAutenticacao");
+const { listarProdutos } = require("../controladores/produtos");
 
 const rotas = express();
 rotas.get("/categoria", listarCategorias);
@@ -20,5 +21,7 @@ rotas.post("/login", validarRequisicao(loginSchema), login);
 rotas.use(loginAutenticacao);
 rotas.get("/usuario", detalharUsuario);
 rotas.put("/usuario", validarRequisicao(usuarioSchema), editarUsuario);
+
+rotas.get("/produto", listarProdutos);
 
 module.exports = rotas;
