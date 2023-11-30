@@ -58,32 +58,35 @@ const editarProduto = async (req, res) => {
     const { id } = req.params;
     const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
 
+    console.log(id)
     if (!id) {
         return res.status(400).json('É necessário informar o id do produto');
     }
 
-    try {
-        const categoria = await knex('categoria')
-            .select('descricao').where('id', categoria_id);
+    // try {
+    const categoria = await knex('categoria')
+        .select('descricao').where('id', categoria_id);
 
-        if (!categoria) {
-            return res.status(404).json({ mensagem: 'A categoria informada não foi encontrada' });
-        }
+    console.log(categoria)
 
-        const produtoAtualizado = await knex('produtos')
-            .update({
-                descricao,
-                quantidade_estoque,
-                valor,
-                categoria_id
-            })
-            .where('id', id)
-            .returning('*');
-
-        return res.status(200).json(produtoAtualizado);
-    } catch (error) {
-        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    if (!categoria) {
+        return res.status(404).json({ mensagem: 'A categoria informada não foi encontrada' });
     }
+
+    const produtoAtualizado = await knex('produtos')
+        .update({
+            descricao,
+            quantidade_estoque,
+            valor,
+            categoria_id
+        })
+        .where('id', id)
+        .returning('*');
+
+    return res.status(200).json(produtoAtualizado);
+    // } catch (error) {
+    //     return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    // }
 }
 
 module.exports = {
