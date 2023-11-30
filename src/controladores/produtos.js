@@ -109,9 +109,31 @@ const editarProduto = async (req, res) => {
     }
 }
 
+const excluirProduto = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const produto = await knex('produtos')
+            .select('descricao').where({ id }).first();
+
+        if (!produto) {
+            return res.status(400).json({ mensagem: "Esse produto ainda não foi cadastrado" });
+        }
+
+        const produtoExcluido = await knex('produtos')
+            .where({ id })
+            .del();
+
+        return res.status(204).json();
+    } catch (error) {
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
+}
+
 module.exports = {
     listarProdutos,
     cadastrarProduto,
     detalharProduto,
-    editarProduto
+    editarProduto,
+    excluirProduto
 };
