@@ -22,7 +22,7 @@ const cadastrarCliente = async (req, res) => {
       return res.status(400).json({ mensagem: "Este CPF já está em uso." });
     }
 
-    const numeroNulo = numero === '' ? null : numero;
+    const numeroNulo = numero === "" ? null : numero;
 
     const novoCliente = await knex("clientes")
       .insert({
@@ -39,10 +39,39 @@ const cadastrarCliente = async (req, res) => {
       .returning("*");
 
     return res.status(201).json(novoCliente);
-    
   } catch (error) {
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
 
-module.exports = cadastrarCliente;
+const detalharCliente = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const clientesDetalhado = await knex("clientes").where({ id }).first();
+
+    return res.json(clientesDetalhado);
+  } catch (error) {
+    return res.status(500).json({ mensagem: error.message });
+  }
+};
+
+const listarCliente = async (req, res) => {
+  try {
+
+    const clientes = await knex("clientes").select("*");
+
+    return res.status(200).json({ clientes });
+
+  } catch (error) {
+    return res.status(500).json({ mensagem: "Erro no servidor!" });
+  }
+
+};
+
+module.exports = {
+  cadastrarCliente,
+  detalharCliente,
+  listarCliente
+};
+
+
