@@ -6,7 +6,6 @@ const loginSchema = require("../schemas/loginSchema");
 const login = require("../controladores/login");
 const { cadastrarUsuario, editarUsuario, detalharUsuario } = require("../controladores/usuario");
 const loginAutenticacao = require("../intermediarios/loginAutenticacao");
-
 const { listarProdutos, cadastrarProduto, detalharProduto, editarProduto, excluirProduto } = require("../controladores/produtos");
 const clienteSchema = require("../schemas/clientesSchema");
 const { cadastrarCliente, detalharCliente, listarCliente, editarCliente } = require("../controladores/clientes");
