@@ -62,5 +62,7 @@ quantidade_produto int not null,
 valor_produto int not null
 );
 
+ALTER TABLE produtos
+ADD  produto_imagem TEXT;
 
 

@@ -25,7 +25,6 @@ const {
   editarCliente,
 } = require("../controladores/clientes");
 const produtoSchema = require("../schemas/produtosSchema");
-const listarPedidos = require("../controladores/pedido");
 
 const rotas = express();
 
