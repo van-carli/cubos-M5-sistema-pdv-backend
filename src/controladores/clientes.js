@@ -34,7 +34,7 @@ const cadastrarCliente = async (req, res) => {
       })
       .returning("*");
 
-    return res.status(201).json(novoCliente);
+    return res.status(201).json(novoCliente[0]);
 
   } catch (error) {
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
@@ -48,7 +48,7 @@ const detalharCliente = async (req, res) => {
 
     if (!clientesDetalhado) {
       return res.status(404).json({ mensagem: "Cliente não encontrado" });
-  }
+    }
 
     return res.status(200).json(clientesDetalhado);
 
@@ -70,32 +70,33 @@ const listarCliente = async (req, res) => {
 };
 
 const editarCliente = async (req, res) => {
-  const { nome, email, cpf, cep, rua, numero, bairro, cidade, estado} = req.body;
+  const { nome, email, cpf, cep, rua, numero, bairro, cidade, estado } = req.body;
   const { id } = req.params;
 
   try {
-      const clienteExiste = await knex("clientes").select('*').where("id",id);
+    const clienteExiste = await knex("clientes").select('*').where("id", id);
 
-      if (clienteExiste.length === 0) {
-          return res.status(400).json({ mensagem: "Cliente não cadastrado!" });
-      }
+    if (clienteExiste.length === 0) {
+      return res.status(400).json({ mensagem: "Cliente não cadastrado!" });
+    }
 
-      const emailExiste = await knex('clientes').select('*').where('email', email).whereNot('id',id);
+    const emailExiste = await knex('clientes').select('*').where('email', email).whereNot('id', id);
 
-      if (emailExiste.length > 0) {
-          return res.status(400).json({ mensagem: "O e-mail informado já está sendo utilizado por outro cliente." });
-      }
+    if (emailExiste.length > 0) {
+      return res.status(400).json({ mensagem: "O e-mail informado já está sendo utilizado por outro cliente." });
+    }
 
-      const cpfExiste = await knex('clientes').select('*').where('cpf', cpf).whereNot('id',id);
-    
-      if (cpfExiste.length > 0) {
-          return res.status(400).json({ mensagem: "O cpf informado já está sendo utilizado por outro cliente."
-          });
-      }
+    const cpfExiste = await knex('clientes').select('*').where('cpf', cpf).whereNot('id', id);
 
-      const cliente = await knex("clientes").update({ nome, email, cpf, cep, rua, numero, bairro, cidade, estado}).where("id",id).returning("*");
+    if (cpfExiste.length > 0) {
+      return res.status(400).json({
+        mensagem: "O cpf informado já está sendo utilizado por outro cliente."
+      });
+    }
 
-      return res.status(200).json(cliente);
+    const cliente = await knex("clientes").update({ nome, email, cpf, cep, rua, numero, bairro, cidade, estado }).where("id", id).returning("*");
+
+    return res.status(200).json(cliente);
 
   } catch (error) {
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
