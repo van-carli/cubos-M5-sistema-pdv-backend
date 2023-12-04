@@ -47,4 +47,20 @@ CREATE TABLE clientes (
 );
 
 
+CREATE TABLE pedidos (
+	id SERIAL PRIMARY KEY,
+  observacao VARCHAR(100),
+  valor_total INT NOT NULL,
+  cliente_id INT NOT NULL REFERENCES clientes (id)
+);
+
+CREATE TABLE pedido_produtos(
+id SERIAL PRIMARY KEY,
+pedido_id int not null REFERENCES pedidos (id),
+produto_id int not null REFERENCES produtos (id),
+quantidade_produto int not null,
+valor_produto int not null
+);
+
+
 
