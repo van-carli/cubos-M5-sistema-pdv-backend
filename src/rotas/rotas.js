@@ -4,8 +4,27 @@ const validarRequisicao = require("../intermediarios/validarRequisicao");
 const usuarioSchema = require("../schemas/usuariosSchema");
 const loginSchema = require("../schemas/loginSchema");
 const login = require("../controladores/login");
-const { cadastrarUsuario, editarUsuario, detalharUsuario } = require("../controladores/usuario");
+const {
+  cadastrarUsuario,
+  editarUsuario,
+  detalharUsuario,
+} = require("../controladores/usuario");
 const loginAutenticacao = require("../intermediarios/loginAutenticacao");
+const {
+  listarProdutos,
+  cadastrarProduto,
+  detalharProduto,
+  editarProduto,
+  excluirProduto,
+} = require("../controladores/produtos");
+const clienteSchema = require("../schemas/clientesSchema");
+const {
+  cadastrarCliente,
+  detalharCliente,
+  listarCliente,
+  editarCliente,
+} = require("../controladores/clientes");
+const produtoSchema = require("../schemas/produtosSchema");
 
 const rotas = express();
 
@@ -17,5 +36,16 @@ rotas.post("/login", validarRequisicao(loginSchema), login);
 rotas.use(loginAutenticacao);
 rotas.get("/usuario", detalharUsuario);
 rotas.put("/usuario", validarRequisicao(usuarioSchema), editarUsuario);
+
+rotas.get("/produto", listarProdutos);
+rotas.post("/produto", validarRequisicao(produtoSchema), cadastrarProduto);
+rotas.get("/produto/:id", detalharProduto);
+rotas.put("/produto/:id", validarRequisicao(produtoSchema), editarProduto);
+rotas.delete("/produto/:id", excluirProduto);
+
+rotas.post("/cliente", validarRequisicao(clienteSchema), cadastrarCliente);
+rotas.put("/cliente/:id", validarRequisicao(clienteSchema), editarCliente);
+rotas.get("/cliente/:id", detalharCliente);
+rotas.get("/cliente", listarCliente);
 
 module.exports = rotas;
