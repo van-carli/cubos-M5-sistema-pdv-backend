@@ -41,7 +41,7 @@ rotas.get("/usuario", detalharUsuario);
 rotas.put("/usuario", validarRequisicao(usuarioSchema), editarUsuario);
 
 rotas.get("/produto", listarProdutos);
-rotas.post("/produto", validarRequisicao(produtoSchema), cadastrarProduto);
+rotas.post("/produto", multer.single('imagem'), validarRequisicao(produtoSchema), cadastrarProduto);
 rotas.get("/produto/:id", detalharProduto);
 rotas.put("/produto/:id", validarRequisicao(produtoSchema), editarProduto);
 rotas.delete("/produto/:id", excluirProduto);
@@ -51,6 +51,8 @@ rotas.put("/cliente/:id", validarRequisicao(clienteSchema), editarCliente);
 rotas.get("/cliente/:id", detalharCliente);
 rotas.get("/cliente", listarCliente);
 
-rotas.post("/pedido", cadastroPedido);
+rotas.post("/pedido", cadastrarPedido);
+rotas.get("/pedido", listarPedido)
+
 
 module.exports = rotas;

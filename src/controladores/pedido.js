@@ -67,12 +67,10 @@ async function salvarPedido(novoPedido, valorTotal, produtosPedido) {
         valor_total: valorTotal,
       })
       .returning("*");
-
     let pedidoFinal = { produtos: [], ...pedido[0] };
-
     for (const produto of produtosPedido) {
       const { produto_id, quantidade_produto, valor_produto } = produto;
-      const itemPedido = await knex("pedido_produtos")
+      const itemPedido = await transacaoDb("pedido_produtos")
         .insert({
           pedido_id: pedido[0].id,
           produto_id,
@@ -82,39 +80,44 @@ async function salvarPedido(novoPedido, valorTotal, produtosPedido) {
         .returning("*");
       pedidoFinal.produtos.push(itemPedido[0]);
     }
+    transacaoDb.commit();
     return pedidoFinal;
+  } catch (error) {
+    transacaoDb.rollback();
+    throw error;
   }
+}
 
 const listarPedido = async (req, res) => {
-    const { id } = req.query;
+  const { id } = req.query;
 
-    try {
-      let query = knex('pedidos');
+  try {
+    let query = knex('pedidos');
 
-      if (id) {
-        query = query.where({ cliente_id: id });
-      }
-
-      const pedidos = await query.select();
-
-      if (pedidos.length === 0) {
-        return res.status(404).json({ mensagem: 'Pedido não encontrado.' });
-      }
-
-      for (const pedido of pedidos) {
-        pedido.pedido_produtos = await knex('pedido_produtos')
-          .where({ pedido_id: pedido.id })
-          .select();
-      }
-
-      return res.status(201).json(pedidos);
-
-    } catch (error) {
-      return res.status(500).json({ mensagem: 'Erro interno do servidor' });
+    if (id) {
+      query = query.where({ cliente_id: id });
     }
-  };
 
-  module.exports = {
-    cadastrarPedido,
-    listarPedido
-  };
+    const pedidos = await query.select();
+
+    if (pedidos.length === 0) {
+      return res.status(404).json({ mensagem: 'Pedido não encontrado.' });
+    }
+
+    for (const pedido of pedidos) {
+      pedido.pedido_produtos = await knex('pedido_produtos')
+        .where({ pedido_id: pedido.id })
+        .select();
+    }
+
+    return res.status(201).json(pedidos);
+
+  } catch (error) {
+    return res.status(500).json({ mensagem: 'Erro interno do servidor' });
+  }
+};
+
+module.exports = {
+  cadastrarPedido,
+  listarPedido
+};

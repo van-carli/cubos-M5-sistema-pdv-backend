@@ -2,8 +2,8 @@ require("dotenv").config();
 
 const knex = require("../configs/conexao");
 
-const multer = require("../multer");
-const b2Conexao = require('../armazenamento');
+const multer = require("../configs/multer");
+const b2Conexao = require('../configs/armazenamento');
 
 
 const listarProdutos = async (req, res) => {
@@ -53,11 +53,11 @@ const cadastrarProduto = async (req, res) => {
     let produtoInserido;
 
     if (imagem) {
-      const { nomeOriginal, buffer } = imagem;
-      const arquivoNome = `produto_${Date.now()}_${nomeOriginal}`;
+      const { originalname, buffer } = imagem;
+      const arquivoNome = `produto_${Date.now()}_${originalname}`;
 
       await b2Conexao.autenticarB2();
-      const upload = await b2Conexao.uploadParaB2(arquivoNome, buffer);
+      const upload = await b2Conexao.enviarParaB2(arquivoNome, buffer);
 
       produtoInserido = await knex("produtos")
         .insert({
@@ -167,7 +167,6 @@ const editarProduto = async (req, res) => {
 
     return res.status(200).json(produtoAtualizado[0]);
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
