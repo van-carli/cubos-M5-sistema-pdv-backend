@@ -1,5 +1,5 @@
 require("dotenv").config();
-const knex = require("../conexao");
+const knex = require("../configs/conexao");
 
 const listarProdutos = async (req, res) => {
   try {

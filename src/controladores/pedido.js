@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { func } = require("joi");
-const knex = require("../conexao");
+const knex = require("../configs/conexao");
+const { enviadorEmail } = require("../configs/emailNotificacao");
 
 const cadastroPedido = async (req, res) => {
   const novoPedido = req.body;
@@ -10,8 +11,12 @@ const cadastroPedido = async (req, res) => {
     }
 
     const clienteExiste = await knex("clientes").select('*').where("id", novoPedido.cliente_id);
+    let emailNotificacao, nomeCliente;
     if (!clienteExiste) {
       return res.status(404).json({ mensagem: "Não existe cliente com o id informado" });
+    } else {
+      emailNotificacao = clienteExiste[0].email;
+      nomeCliente = clienteExiste[0].nome;
     }
 
     let valorTotalPedido = 0;
@@ -40,6 +45,8 @@ const cadastroPedido = async (req, res) => {
     }
     const pedidoCadastrado = await salvarPedido(novoPedido, valorTotalPedido, produtosPedido);
     // Enviar e-mail para o cliente notificando que o pedido foi efetuado com sucesso.
+    await enviarEmailNotificacao(emailNotificacao, nomeCliente, pedidoCadastrado.id);
+    pedidoCadastrado.emailNotificacao = emailNotificacao;
 
     return res.json(pedidoCadastrado);
   } catch (error) {
@@ -80,6 +87,15 @@ async function salvarPedido(novoPedido, valorTotal, produtosPedido) {
     transacaoDb.rollback();
     throw error;
   }
+}
+
+async function enviarEmailNotificacao(email, nome, pedido) {
+  enviadorEmail.sendMail({
+    from: `${process.env.EMAIL_NAME} <${process.env.EMAIL_FROM}>`,
+    to: `${nome} <${email}>`,
+    subject: `Pedido ${pedido} efetuado com sucesso`,
+    text: "Pedido efetuado com sucesso, obrigada pela preferência."
+  });
 }
 
 const listarPedido = async (req, res) => { };
