@@ -26,8 +26,9 @@ const {
   editarCliente,
 } = require("../controladores/clientes");
 const {
-  cadastroPedido
+  cadastrarPedido, listarPedido
 } = require("../controladores/pedido");
+const multer = require("../configs/multer");
 
 const rotas = express();
 

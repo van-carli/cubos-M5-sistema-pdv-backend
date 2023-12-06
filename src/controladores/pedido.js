@@ -88,6 +88,15 @@ async function salvarPedido(novoPedido, valorTotal, produtosPedido) {
   }
 }
 
+async function enviarEmailNotificacao(email, nome, pedido) {
+  enviadorEmail.sendMail({
+    from: `${process.env.EMAIL_NAME} <${process.env.EMAIL_FROM}>`,
+    to: `${nome} <${email}>`,
+    subject: `Pedido ${pedido} efetuado com sucesso`,
+    text: "Pedido efetuado com sucesso, obrigada pela preferência."
+  });
+}
+
 const listarPedido = async (req, res) => {
   const { id } = req.query;
 
