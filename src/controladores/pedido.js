@@ -1,8 +1,7 @@
 require("dotenv").config();
-const { func } = require("joi");
 const knex = require("../conexao");
 
-const cadastroPedido = async (req, res) => {
+const cadastrarPedido = async (req, res) => {
   const novoPedido = req.body;
   try {
     if (!novoPedido.pedido_produtos) {
@@ -15,20 +14,20 @@ const cadastroPedido = async (req, res) => {
     }
 
     let valorTotalPedido = 0;
+
     let produtosPedido = [];
+
     for (const produtoPedido of novoPedido.pedido_produtos) {
       const produtosDb = await knex("produtos").select('*').where("id", produtoPedido.produto_id);
+
       if (!produtosDb) {
-        return res.status(404).json({
-          mensagem: `O id do produto informado '${produtoPedido.produto_id}', não está vinculado a nenhum produto`,
-        });
+        return res.status(404).json({ mensagem: `O id do produto informado '${produtoPedido.produto_id}', não está vinculado a nenhum produto` });
       }
+
       const produtoDb = produtosDb[0];
 
       if (produtoPedido.quantidade_produto > produtoDb.quantidade_estoque) {
-        return res.status(400).json({
-          mensagem: "A quantidade do produto em estoque é inferior ao pedido",
-        });
+        return res.status(400).json({  mensagem: "A quantidade do produto em estoque é inferior ao pedido" });
       }
 
       produtosPedido.push({
@@ -36,19 +35,22 @@ const cadastroPedido = async (req, res) => {
         quantidade_produto: produtoPedido.quantidade_produto,
         valor_produto: produtoDb.valor
       });
+
       valorTotalPedido += (produtoDb.valor * produtoPedido.quantidade_produto);
     }
+
     const pedidoCadastrado = await salvarPedido(novoPedido, valorTotalPedido, produtosPedido);
-    // Enviar e-mail para o cliente notificando que o pedido foi efetuado com sucesso.
 
     return res.json(pedidoCadastrado);
+
   } catch (error) {
-    res.status(500).json({ mensagem: error.message });
+    res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
 
 async function salvarPedido(novoPedido, valorTotal, produtosPedido) {
   const { observacao, cliente_id } = novoPedido;
+
   const pedido = await knex("pedidos")
     .insert({
       cliente_id,
@@ -69,14 +71,43 @@ async function salvarPedido(novoPedido, valorTotal, produtosPedido) {
         valor_produto
       })
       .returning("*");
+
     pedidoFinal.produtos.push(itemPedido[0]);
   }
+
   return pedidoFinal;
 }
 
-const listarPedido = async (req, res) => { };
+const listarPedido = async (req, res) => {
+  const { id } = req.query;
+
+  try {
+    let query = knex('pedidos');
+
+    if (id) {
+      query = query.where({ cliente_id: id });
+    }
+
+    const pedidos = await query.select();
+
+    if (pedidos.length === 0) {
+      return res.status(404).json({ mensagem: 'Nenhum pedido encontrado.' });
+    }
+
+    for (const pedido of pedidos) {
+      pedido.pedido_produtos = await knex('pedido_produtos')
+        .where({ pedido_id: pedido.id })
+        .select();
+    }
+
+    return res.status(201).json(pedidos);
+
+  } catch (error) {
+    return res.status(500).json({ mensagem: 'Erro interno do servidor' });
+  }
+};
 
 module.exports = {
-  listarPedido,
-  cadastroPedido,
+  cadastrarPedido,
+  listarPedido
 };
