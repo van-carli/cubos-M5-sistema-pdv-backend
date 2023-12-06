@@ -91,7 +91,7 @@ const listarPedido = async (req, res) => {
     const pedidos = await query.select();
 
     if (pedidos.length === 0) {
-      return res.status(404).json({ mensagem: 'Nenhum pedido encontrado.' });
+      return res.status(404).json({ mensagem: 'Pedido não encontrado.' });
     }
 
     for (const pedido of pedidos) {
