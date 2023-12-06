@@ -48,30 +48,38 @@ const cadastroPedido = async (req, res) => {
 };
 
 async function salvarPedido(novoPedido, valorTotal, produtosPedido) {
-  const { observacao, cliente_id } = novoPedido;
-  const pedido = await knex("pedidos")
-    .insert({
-      cliente_id,
-      observacao,
-      valor_total: valorTotal,
-    })
-    .returning("*");
-
-  let pedidoFinal = { produtos: [], ...pedido[0] };
-
-  for (const produto of produtosPedido) {
-    const { produto_id, quantidade_produto, valor_produto } = produto;
-    const itemPedido = await knex("pedido_produtos")
+  const transacaoDb = await knex.transaction();
+  try {
+    const { observacao, cliente_id } = novoPedido;
+    const pedido = await transacaoDb("pedidos")
       .insert({
-        pedido_id: pedido[0].id,
-        produto_id,
-        quantidade_produto,
-        valor_produto
+        cliente_id,
+        observacao,
+        valor_total: valorTotal,
       })
       .returning("*");
-    pedidoFinal.produtos.push(itemPedido[0]);
+
+    let pedidoFinal = { produtos: [], ...pedido[0] };
+
+    for (const produto of produtosPedido) {
+      const { produto_id, quantidade_produto, valor_produto } = produto;
+      const itemPedido = await transacaoDb("pedido_produtos")
+        .insert({
+          pedido_id: pedido[0].id,
+          produto_id,
+          quantidade_produto,
+          valor_produto
+        })
+        .returning("*");
+      pedidoFinal.produtos.push(itemPedido[0]);
+    }
+    transacaoDb.commit();
+    return pedidoFinal;
+
+  } catch (error) {
+    transacaoDb.rollback();
+    throw error;
   }
-  return pedidoFinal;
 }
 
 const listarPedido = async (req, res) => { };
