@@ -20,7 +20,7 @@ const schemaPedido = Joi.object({
     .required()
     .messages({
       "any.required": "O campo (pedido_produtos) é obrigatório",
-      "array.min": "O pedido deve conter ao menos 1 ítem",
+      "array.min": "O pedido deve conter ao menos um item",
     }),
 });
 
