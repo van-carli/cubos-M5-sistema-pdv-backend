@@ -4,14 +4,31 @@ const validarRequisicao = require("../intermediarios/validarRequisicao");
 const usuarioSchema = require("../schemas/usuariosSchema");
 const loginSchema = require("../schemas/loginSchema");
 const login = require("../controladores/login");
-const { cadastrarUsuario, editarUsuario, detalharUsuario } = require("../controladores/usuario");
+const {
+  cadastrarUsuario,
+  editarUsuario,
+  detalharUsuario,
+} = require("../controladores/usuario");
 const loginAutenticacao = require("../intermediarios/loginAutenticacao");
 const produtoSchema = require("../schemas/produtosSchema");
-const { listarProdutos, cadastrarProduto, detalharProduto, editarProduto, excluirProduto } = require("../controladores/produtos");
+const {
+  listarProdutos,
+  cadastrarProduto,
+  detalharProduto,
+  editarProduto,
+  excluirProduto,
+} = require("../controladores/produtos");
 const clienteSchema = require("../schemas/clientesSchema");
-const { cadastrarCliente, detalharCliente, listarCliente, editarCliente } = require("../controladores/clientes");
-const { cadastrarPedido, listarPedido } = require("../controladores/pedido");
-
+const {
+  cadastrarCliente,
+  detalharCliente,
+  listarCliente,
+  editarCliente,
+} = require("../controladores/clientes");
+const {
+  cadastrarPedido, listarPedido
+} = require("../controladores/pedido");
+const multer = require("../configs/multer");
 
 const rotas = express();
 
@@ -25,7 +42,7 @@ rotas.get("/usuario", detalharUsuario);
 rotas.put("/usuario", validarRequisicao(usuarioSchema), editarUsuario);
 
 rotas.get("/produto", listarProdutos);
-rotas.post("/produto", validarRequisicao(produtoSchema), cadastrarProduto);
+rotas.post("/produto", multer.single('imagem'), validarRequisicao(produtoSchema), cadastrarProduto);
 rotas.get("/produto/:id", detalharProduto);
 rotas.put("/produto/:id", validarRequisicao(produtoSchema), editarProduto);
 rotas.delete("/produto/:id", excluirProduto);
