@@ -136,6 +136,12 @@ const excluirProduto = async (req, res) => {
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
     }
 
+    const produtoPedidos = await knex("pedido_produtos").select('*').where("produto_id",id);
+
+    if (produtoPedidos > 0){
+      return res.status(403).json({ mensagem: "Não é possivel deletar este produto!" });
+    }
+
     const produtoExcluido = await knex("produtos").where({ id }).del();
 
     return res.status(204).json();
