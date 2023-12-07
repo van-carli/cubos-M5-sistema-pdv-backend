@@ -1,4 +1,4 @@
-const knex = require("../conexao");
+const knex = require("../configs/conexao");
 require("dotenv").config();
 
 const cadastrarCliente = async (req, res) => {

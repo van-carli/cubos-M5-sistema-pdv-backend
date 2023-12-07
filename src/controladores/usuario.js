@@ -1,4 +1,4 @@
-const knex = require("../conexao");
+const knex = require("../configs/conexao");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
@@ -9,8 +9,9 @@ const cadastrarUsuario = async (req, res) => {
     const usuarioEncontrado = await knex("usuarios").where({ email }).first();
 
     if (usuarioEncontrado) {
-      return res.status(400).json({ mensagem: "O e-mail informado já está sendo utilizado por outro usuário."
- });
+      return res.status(400).json({
+        mensagem: "O e-mail informado já está sendo utilizado por outro usuário."
+      });
     }
 
     const senhaCriptografada = await bcrypt.hash(senha, 10);
@@ -52,7 +53,7 @@ const editarUsuario = async (req, res) => {
     return res.status(200).json(usr);
 
   } catch (error) {
-      return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
 
@@ -68,7 +69,7 @@ const detalharUsuario = async (req, res) => {
     const { senha: _, ...usuarioSemSenha } = usuario[0];
 
     return res.status(200).json(usuarioSemSenha);
-    
+
   } catch (error) {
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }

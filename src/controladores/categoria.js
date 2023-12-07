@@ -1,4 +1,4 @@
-const knex = require("../conexao");
+const knex = require("../configs/conexao");
 
 const listarCategorias = async (req, res) => {
   try {
@@ -7,6 +7,7 @@ const listarCategorias = async (req, res) => {
     res.status(200).json(query);
 
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
