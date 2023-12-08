@@ -171,6 +171,15 @@ const excluirProduto = async (req, res) => {
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
     }
 
+    const produtoPedido = await knex("pedido_produtos")
+      .select("pedido_id")
+      .where("produto_id", id)
+      .first();
+
+    if (produtoPedido) {
+      return res.status(403).json({ mensagem: "Este produto não pode ser excluído, pois está vinculado a um pedido." })
+    }
+
     const produtoExcluido = await knex("produtos").where({ id }).del();
 
     return res.status(204).json();
