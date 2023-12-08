@@ -174,6 +174,7 @@ const editarProduto = async (req, res) => {
 
 const excluirProduto = async (req, res) => {
   const { id } = req.params;
+  const imagem = req.file;
 
   try {
     const produto = await knex("produtos")
@@ -187,6 +188,12 @@ const excluirProduto = async (req, res) => {
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
     }
 
+    if (!imagem) {
+      return res
+        .status(400)
+        .json({ mensagem: "Imagem não encontrada" });
+    }
+
     const produtoPedidos = await knex("pedido_produtos").select('*').where("produto_id",id);
 
     if (produtoPedidos > 0){
@@ -194,6 +201,8 @@ const excluirProduto = async (req, res) => {
     }
 
     const produtoExcluido = await knex("produtos").where({ id }).del();
+
+    await S3.deleteObject({}).promise()
 
     return res.status(204).json();
   } catch (error) {
