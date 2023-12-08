@@ -11,6 +11,7 @@ const s3 = new aws.S3({
 });
 
 const uploadImagem = async (path, buffer, mimetype) => {
+  try{
   const imagem = await s3.upload({
       Bucket: process.env.BUCKET,
       Key: path,
@@ -23,6 +24,9 @@ const uploadImagem = async (path, buffer, mimetype) => {
         path: imagem.Key,
         url: `https://${process.env.BUCKET}.${process.env.ENDPOINT_S3}/${imagem.Key}`,
       };
+  } catch (error) {
+    return res.status(500).json({ mensagem: "Erro interno do servidor" });
+  }
 };
 
 module.exports = {

@@ -63,15 +63,15 @@ const cadastrarProduto = async (req, res) => {
         mimetype
       );
 
-        produto = await knex(`produtos`).update({
-          produto_imagem: imagem.path
-        }).where({ id }).returning('*')
+        produto = await knex(`produtos`).where({ id }).update({
+          produto_imagem: imagem.url
+        }).returning('*');
 
-        produto[0].urlImagem = imagem.url
+        produto[0].produto_imagem = imagem.url
     
       return res.status(201).json(produto[0]);
+
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ mensagem: "Erro interno do servidor" });
     }
 };
