@@ -1,10 +1,6 @@
 require("dotenv").config();
-
 const knex = require("../configs/conexao");
-
-const multer = require("../configs/multer");
-const b2Conexao = require('../configs/armazenamento');
-
+const { uploadImagem } = require('../configs/uploads')
 
 const listarProdutos = async (req, res) => {
   try {
@@ -37,60 +33,49 @@ const listarProdutos = async (req, res) => {
 
 const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
-  const imagem = req.file;
+  const { originalname, buffer, mimetype } = req.file;
 
-  try {
-    const categoriaEncontrada = await knex("categorias")
-      .where({ id: categoria_id })
-      .first();
+    try {
+      const categoriaEncontrada = await knex("categorias")
+        .where({ id: categoria_id }).first();
+  
+      if (!categoriaEncontrada) {
+        return res.status(404).json({ mensagem: "A categoria informada não foi encontrada" });
+      }
 
-    if (!categoriaEncontrada) {
-      return res
-        .status(404)
-        .json({ mensagem: "A categoria informada não foi encontrada" });
-    }
-
-    let produtoInserido;
-
-    if (imagem) {
-      const { originalname, buffer } = imagem;
-      const arquivoNome = `produto_${Date.now()}_${originalname}`;
-
-      await b2Conexao.autenticarB2();
-      const upload = await b2Conexao.enviarParaB2(arquivoNome, buffer);
-
-      produtoInserido = await knex("produtos")
-        .insert({
+      let produto = await knex("produtos").insert({
           descricao,
           quantidade_estoque,
           valor,
-          categoria_id,
-          produto_imagem: upload.dataInfo.url,
+          categoria_id
         })
         .returning("*");
-    } else {
-      produtoInserido = await knex("produtos")
-        .insert({
-          descricao,
-          quantidade_estoque,
-          valor,
-          categoria_id,
-        })
-        .returning("*");
-    }
+      
+      if (!produto) {
+        return res.status(400).json({ mensagem: "O produto não foi cadastrado" })
+      }
 
-    if (!produtoInserido[0]) {
-      return res.status(400).json("O produto não foi cadastrado");
-    }
+      const id = produto[0].id
 
-    return res.status(201).json(produtoInserido[0]);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ mensagem: "Erro interno do servidor" });
-  }
+      const imagem = await uploadImagem(
+        `produtos/${id}/${originalname}`,
+        buffer,
+        mimetype
+      );
+
+        produto = await knex(`produtos`).update({
+          produto_imagem: imagem.path
+        }).where({ id }).returning('*')
+
+        produto[0].urlImagem = imagem.url
+    
+      return res.status(201).json(produto[0]);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
 };
-
-
+  
 const detalharProduto = async (req, res) => {
   const { id } = req.params;
   try {
@@ -170,7 +155,6 @@ const editarProduto = async (req, res) => {
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
-
 
 const excluirProduto = async (req, res) => {
   const { id } = req.params;
