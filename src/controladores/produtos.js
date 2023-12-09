@@ -63,15 +63,15 @@ const cadastrarProduto = async (req, res) => {
         mimetype
       );
 
-        produto = await knex(`produtos`).where({ id }).update({
+        produto = await knex(`produtos`).update({
           produto_imagem: imagem.url
-        }).returning('*');
+        }).where({ id }).returning('*')
 
-        produto[0].produto_imagem = imagem.url
+        produto[0].urlImagem = imagem.url
     
       return res.status(201).json(produto[0]);
-
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ mensagem: "Erro interno do servidor" });
     }
 };
@@ -95,21 +95,21 @@ const detalharProduto = async (req, res) => {
 const editarProduto = async (req, res) => {
   const { id } = req.params;
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
-  const imagem = req.file;
+  const { originalname, buffer, mimetype } = req.file;
 
   try {
     const categoria = await knex("categorias")
       .select("descricao")
       .where("id", categoria_id);
 
-    if (!categoria) {
+    if (!categoria || categoria.length === 0) {
       return res
         .status(404)
         .json({ mensagem: "A categoria informada não foi encontrada" });
     }
 
     const produto = await knex("produtos")
-      .select("descricao", "produto_imagem")
+      .select("id", "descricao", "produto_imagem")
       .where("id", id)
       .first();
 
@@ -119,36 +119,24 @@ const editarProduto = async (req, res) => {
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
     }
 
-    let produtoAtualizado;
+    const imagem = await uploadImagem(
+      `produtos/${id}/${originalname}`,
+      buffer,
+      mimetype
+    );
 
-    if (imagem) {
-      const { nomeOriginal, buffer } = imagem;
-      const nomeArquivo = `produto_${Date.now()}_${nomeOriginal}`;
+    const produtoAtualizado = await knex("produtos")
+      .update({
+        descricao,
+        quantidade_estoque,
+        valor,
+        categoria_id,
+        produto_imagem: imagem.url,
+      })
+      .where({ id })
+      .returning('*');
 
-      await b2Conexao.autenticarB2();
-      const uploadResponse = await b2Conexao.uploadParaB2(nomeArquivo, buffer);
-
-      produtoAtualizado = await knex("produtos")
-        .update({
-          descricao,
-          quantidade_estoque,
-          valor,
-          categoria_id,
-          produto_imagem: uploadResponse.dataInfo.url,
-        })
-        .where("id", id)
-        .returning("*");
-    } else {
-      produtoAtualizado = await knex("produtos")
-        .update({
-          descricao,
-          quantidade_estoque,
-          valor,
-          categoria_id,
-        })
-        .where("id", id)
-        .returning("*");
-    }
+    produtoAtualizado[0].urlImagem = imagem.url;
 
     return res.status(200).json(produtoAtualizado[0]);
   } catch (error) {
@@ -169,15 +157,6 @@ const excluirProduto = async (req, res) => {
       return res
         .status(400)
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
-    }
-
-    const produtoPedido = await knex("pedido_produtos")
-      .select("pedido_id")
-      .where("produto_id", id)
-      .first();
-
-    if (produtoPedido) {
-      return res.status(403).json({ mensagem: "Este produto não pode ser excluído, pois está vinculado a um pedido." })
     }
 
     const produtoExcluido = await knex("produtos").where({ id }).del();
