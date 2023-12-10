@@ -29,6 +29,20 @@ const uploadImagem = async (path, buffer, mimetype) => {
   }
 };
 
+const deleteImagem = async (path) =>{
+  try{
+
+    await s3.deleteObject({
+      Bucket:process.env.BUCKET,
+      Key: path
+    }).promise();
+    
+  }catch(error){
+    return res.status(500).json({ mensagem: "Erro interno do servidor" });
+  }
+};
+
 module.exports = {
   uploadImagem,
+  deleteImagem
 };

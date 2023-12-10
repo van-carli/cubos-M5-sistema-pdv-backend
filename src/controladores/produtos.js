@@ -1,6 +1,6 @@
 require("dotenv").config();
 const knex = require("../configs/conexao");
-const { uploadImagem } = require('../configs/uploads')
+const { uploadImagem,deleteImagem } = require('../configs/uploads')
 
 const listarProdutos = async (req, res) => {
   try {
@@ -158,7 +158,7 @@ const editarProduto = async (req, res) => {
 
 const excluirProduto = async (req, res) => {
   const { id } = req.params;
-
+  const { file } = req.query;
   try {
     const produto = await knex("produtos")
       .select("descricao")
@@ -170,7 +170,7 @@ const excluirProduto = async (req, res) => {
         .status(400)
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
     }
-
+    
     const produtoPedido = await knex("pedido_produtos")
       .select("pedido_id")
       .where("produto_id", id)
@@ -178,11 +178,16 @@ const excluirProduto = async (req, res) => {
 
     if (produtoPedido) {
       return res.status(403).json({ mensagem: "Este produto não pode ser excluído, pois está vinculado a um pedido." })
+
     }
 
     const produtoExcluido = await knex("produtos").where({ id }).del();
 
+    await deleteImagem(file);
+    
+
     return res.status(204).json();
+    
   } catch (error) {
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
