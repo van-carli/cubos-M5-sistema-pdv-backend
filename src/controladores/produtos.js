@@ -1,6 +1,6 @@
 require("dotenv").config();
 const knex = require("../configs/conexao");
-const { uploadImagem, deleteImagem } = require('../configs/uploads')
+const { uploadImagem, deleteImagem } = require("../configs/uploads");
 
 const listarProdutos = async (req, res) => {
   try {
@@ -37,25 +37,29 @@ const cadastrarProduto = async (req, res) => {
 
   try {
     const categoriaEncontrada = await knex("categorias")
-      .where({ id: categoria_id }).first();
+      .where({ id: categoria_id })
+      .first();
 
     if (!categoriaEncontrada) {
-      return res.status(404).json({ mensagem: "A categoria informada não foi encontrada" });
+      return res
+        .status(404)
+        .json({ mensagem: "A categoria informada não foi encontrada" });
     }
 
-    let produto = await knex("produtos").insert({
-      descricao,
-      quantidade_estoque,
-      valor,
-      categoria_id
-    })
+    let produto = await knex("produtos")
+      .insert({
+        descricao,
+        quantidade_estoque,
+        valor,
+        categoria_id,
+      })
       .returning("*");
 
     if (!produto) {
-      return res.status(400).json({ mensagem: "O produto não foi cadastrado" })
+      return res.status(400).json({ mensagem: "O produto não foi cadastrado" });
     }
 
-    const id = produto[0].id
+    const id = produto[0].id;
 
     const imagem = await uploadImagem(
       `produtos/${id}/${originalname}`,
@@ -63,11 +67,14 @@ const cadastrarProduto = async (req, res) => {
       mimetype
     );
 
-    produto = await knex(`produtos`).update({
-      produto_imagem: imagem.url
-    }).where({ id }).returning('*')
+    produto = await knex(`produtos`)
+      .update({
+        produto_imagem: imagem.url,
+      })
+      .where({ id })
+      .returning("*");
 
-    produto[0].produto_imagem = imagem.url
+    produto[0].produto_imagem = imagem.url;
 
     return res.status(201).json(produto[0]);
   } catch (error) {
@@ -128,7 +135,7 @@ const editarProduto = async (req, res) => {
       buffer,
       mimetype
     );
-    
+
     const produtoAtualizado = await knex("produtos")
       .update({
         descricao,
@@ -140,7 +147,7 @@ const editarProduto = async (req, res) => {
       .where({ id })
       .returning("*");
 
-    produtoAtualizado[0].urlImagem = imagem.url;
+    produtoAtualizado[0].produto_imagem = imagem.url;
 
     return res.status(200).json(produtoAtualizado[0]);
   } catch (error) {
@@ -169,17 +176,17 @@ const excluirProduto = async (req, res) => {
       .first();
 
     if (produtoPedido) {
-      return res.status(403).json({ mensagem: "Este produto não pode ser excluído, pois está vinculado a um pedido." })
-
+      return res.status(403).json({
+        mensagem:
+          "Este produto não pode ser excluído, pois está vinculado a um pedido.",
+      });
     }
 
     const produtoExcluido = await knex("produtos").where({ id }).del();
 
     await deleteImagem(file);
 
-
     return res.status(204).json();
-
   } catch (error) {
     return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
