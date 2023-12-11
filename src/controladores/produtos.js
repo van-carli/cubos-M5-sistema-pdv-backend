@@ -144,7 +144,7 @@ const editarProduto = async (req, res) => {
 
     return res.status(200).json(produtoAtualizado[0]);
   } catch (error) {
-    return res.status(500).json({ mensagem: error.message });
+    return res.status(500).json({ mensagem: "Erro interno do servidor" });
   }
 };
 
