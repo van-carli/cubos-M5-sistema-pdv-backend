@@ -34,7 +34,6 @@ const listarProdutos = async (req, res) => {
 const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
   const { originalname, buffer, mimetype } = req.file;
-  console.log(req.file);
 
   try {
     const categoriaEncontrada = await knex("categorias")
