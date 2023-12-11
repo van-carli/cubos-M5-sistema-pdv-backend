@@ -119,12 +119,16 @@ const editarProduto = async (req, res) => {
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
     }
 
+    if (produto.produto_imagem) {
+      await deleteImagem(produto.produto_imagem);
+    }
+
     const imagem = await uploadImagem(
       `produtos/${id}/${originalname}`,
       buffer,
       mimetype
     );
-
+    
     const produtoAtualizado = await knex("produtos")
       .update({
         descricao,
@@ -134,7 +138,7 @@ const editarProduto = async (req, res) => {
         produto_imagem: imagem.url,
       })
       .where({ id })
-      .returning('*');
+      .returning("*");
 
     produtoAtualizado[0].urlImagem = imagem.url;
 
