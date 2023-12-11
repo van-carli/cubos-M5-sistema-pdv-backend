@@ -67,7 +67,7 @@ const cadastrarProduto = async (req, res) => {
       produto_imagem: imagem.url
     }).where({ id }).returning('*')
 
-    produto[0].urlImagem = imagem.url
+    produto[0].produto_imagem = imagem.url
 
     return res.status(201).json(produto[0]);
   } catch (error) {
