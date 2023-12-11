@@ -34,6 +34,7 @@ const listarProdutos = async (req, res) => {
 const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
   const { originalname, buffer, mimetype } = req.file;
+  console.log(req.file);
 
   try {
     const categoriaEncontrada = await knex("categorias")
@@ -119,12 +120,16 @@ const editarProduto = async (req, res) => {
         .json({ mensagem: "Este produto ainda não foi cadastrado" });
     }
 
+    if (produto.produto_imagem) {
+      await deleteImagem(produto.produto_imagem);
+    }
+
     const imagem = await uploadImagem(
       `produtos/${id}/${originalname}`,
       buffer,
       mimetype
     );
-
+    
     const produtoAtualizado = await knex("produtos")
       .update({
         descricao,
@@ -134,13 +139,13 @@ const editarProduto = async (req, res) => {
         produto_imagem: imagem.url,
       })
       .where({ id })
-      .returning('*');
+      .returning("*");
 
     produtoAtualizado[0].urlImagem = imagem.url;
 
     return res.status(200).json(produtoAtualizado[0]);
   } catch (error) {
-    return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    return res.status(500).json({ mensagem: error.message });
   }
 };
 

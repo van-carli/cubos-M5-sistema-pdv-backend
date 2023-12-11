@@ -44,7 +44,8 @@ rotas.put("/usuario", validarRequisicao(usuarioSchema), editarUsuario);
 rotas.get("/produto", listarProdutos);
 rotas.post("/produto", multer.single('produto_imagem'), validarRequisicao(produtoSchema), cadastrarProduto);
 rotas.get("/produto/:id", detalharProduto);
-rotas.put("/produto/:id", validarRequisicao(produtoSchema), editarProduto);
+rotas.put("/produto/:id", multer.single('produto_imagem'), validarRequisicao(produtoSchema), editarProduto);
+
 rotas.delete("/produto/:id", excluirProduto);
 
 rotas.post("/cliente", validarRequisicao(clienteSchema), cadastrarCliente);
