@@ -64,5 +64,3 @@ valor_produto int not null
 
 ALTER TABLE produtos
 ADD  produto_imagem TEXT;
-
-
