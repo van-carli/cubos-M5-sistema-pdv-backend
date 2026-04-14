@@ -1,14 +1,14 @@
 {
   "name": "desafio-backend-modulo-05-sistema-pdv-b2b-ifood-t09",
   "version": "1.0.0",
-  "description": "![](https://i.imgur.com/xG74tOh.png)",
+  "description": "API RESTful para um sistema de PDV (Ponto de Venda) com integração de banco de dados e upload de imagens.",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
     "dev": "nodemon ./src/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Grupo Cubos Academy - Vanessa",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1515.0",
