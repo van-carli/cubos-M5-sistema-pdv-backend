@@ -33,7 +33,7 @@ const listarProdutos = async (req, res) => {
 
 const cadastrarProduto = async (req, res) => {
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
-  const { originalname, buffer, mimetype } = req.file;
+  const { file } = req;
 
   try {
     const categoriaEncontrada = await knex("categorias")
@@ -61,11 +61,13 @@ const cadastrarProduto = async (req, res) => {
 
     const id = produto[0].id;
 
-    const imagem = await uploadImagem(
-      `produtos/${id}/${originalname}`,
-      buffer,
-      mimetype
-    );
+    if (file) {
+      const imagem = await uploadImagem(
+        `produtos/${id}/${originalname}`,
+        buffer,
+        mimetype
+      );
+    }
 
     produto = await knex(`produtos`)
       .update({
@@ -102,7 +104,7 @@ const detalharProduto = async (req, res) => {
 const editarProduto = async (req, res) => {
   const { id } = req.params;
   const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
-  const { originalname, buffer, mimetype } = req.file;
+  const { file } = req;
 
   try {
     const categoria = await knex("categorias")
@@ -130,11 +132,13 @@ const editarProduto = async (req, res) => {
       await deleteImagem(produto.produto_imagem);
     }
 
-    const imagem = await uploadImagem(
-      `produtos/${id}/${originalname}`,
-      buffer,
-      mimetype
-    );
+    if (file) {
+      const imagem = await uploadImagem(
+        `produtos/${id}/${originalname}`,
+        buffer,
+        mimetype
+      );
+    }
 
     const produtoAtualizado = await knex("produtos")
       .update({

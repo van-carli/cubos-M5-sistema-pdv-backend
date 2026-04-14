@@ -10,7 +10,7 @@ const cadastrarPedido = async (req, res) => {
       return res.status(404).json({ mensagem: "É necessário que o pedido contenha pelo menos um produto." });
     }
 
-    const clienteExiste = await knex("clientes").select('*').where("id", novoPedido.cliente_id);
+    const clienteExiste = await knex("clientes").select('*').where("id", novoPedido.cliente_id).first();
     let emailNotificacao, nomeCliente;
     if (!clienteExiste) {
       return res.status(404).json({ mensagem: "Não existe cliente com o id informado" });
@@ -98,12 +98,12 @@ async function enviarEmailNotificacao(email, nome, pedido) {
 }
 
 const listarPedido = async (req, res) => {
-  const { id } = req.query;
+  const { cliente_id } = req.query;
 
   try {
     let query = knex('pedidos');
 
-    if (id) {
+    if (cliente_id) {
       query = query.where({ cliente_id: id });
     }
 

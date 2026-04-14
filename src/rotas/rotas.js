@@ -3,7 +3,9 @@ const { listarCategorias } = require("../controladores/categoria");
 const validarRequisicao = require("../intermediarios/validarRequisicao");
 const usuarioSchema = require("../schemas/usuariosSchema");
 const loginSchema = require("../schemas/loginSchema");
+const pedidoSchema = require("../schemas/pedidoSchema");
 const login = require("../controladores/login");
+
 const {
   cadastrarUsuario,
   editarUsuario,
@@ -53,7 +55,7 @@ rotas.put("/cliente/:id", validarRequisicao(clienteSchema), editarCliente);
 rotas.get("/cliente/:id", detalharCliente);
 rotas.get("/cliente", listarCliente);
 
-rotas.post("/pedido", cadastrarPedido);
+rotas.post("/pedido", validarRequisicao(pedidoSchema), cadastrarPedido);
 rotas.get("/pedido", listarPedido)
 
 
